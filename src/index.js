@@ -5,22 +5,10 @@
  */
 require("monero-javascript");
 
-//"use strict"
-
-// detect if called from worker
-console.log("ENTER INDEX.JS");
-let isWorker = self.document? false : true;
-//console.log("IS WORKER: " + isWorker);
-if (isWorker) {
-  //self.importScripts('monero-javascript-wasm.js');  // TODO: necessary to avoid worker.js onmessage() captured an uncaught exception: ReferenceError: monero_javascript is not defined
-  runWorker();
-} else {
-  runMain();
-}
-
 /**
  * Main thread.
  */
+runMain();
 async function runMain() {
   console.log("RUN MAIN");
   
@@ -36,7 +24,7 @@ async function runMain() {
   let mnemonic = "goblet went maze cylinder stockpile twofold fewest jaded lurk rally espionage grunt aunt puffin kickoff refer shyness tether building eleven lopped dawn tasked toolbox grunt";
   let seedOffset = "";
   let restoreHeight = 531333;
-  let proxyToWorker = true;   // proxy core wallet and daemon to worker so main thread is not blocked (recommended)
+  let proxyToWorker = true;   // proxy wasm wallet and daemon to worker so main thread is not blocked (recommended)
   let useFS = true;           // optionally save wallets to an in-memory file system, otherwise use empty paths
   let FS = useFS ? require('memfs') : undefined;  // use in-memory file system for demo
   
@@ -57,13 +45,13 @@ async function runMain() {
   let walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
   console.log("Keys-only wallet random mnemonic: " + await walletKeys.getMnemonic());
   
-  // connect to monero-daemon-rpc on same thread as core wallet so requests from same client to daemon are synced
+  // connect to monero-daemon-rpc on same thread as wasm wallet so requests from same client to daemon are synced
   console.log("Connecting to monero-daemon-rpc" + (proxyToWorker ? " in worker" : ""));
-  let daemon = await MoneroDaemonRpc.create({uri: daemonRpcUri, user: daemonRpcUsername, pass: daemonRpcPassword, proxyToWorker: proxyToWorker});
+  let daemon = new MoneroDaemonRpc({uri: daemonRpcUri, username: daemonRpcUsername, password: daemonRpcPassword, proxyToWorker: proxyToWorker});
   console.log("Daemon height: " + await daemon.getHeight());
   
   // connect to monero-wallet-rpc
-  let walletRpc = new MoneroWalletRpc({uri: walletRpcUri, user: walletRpcUsername, pass: walletRpcPassword});
+  let walletRpc = new MoneroWalletRpc({uri: walletRpcUri, username: walletRpcUsername, password: walletRpcPassword});
   
   // open or create rpc wallet
   try {
@@ -87,43 +75,35 @@ async function runMain() {
   console.log("Wallet rpc mnemonic: " + await walletRpc.getMnemonic());
   console.log("Wallet rpc balance: " + await walletRpc.getBalance());  // TODO: why does this print digits and not object?
   
-  // create a core wallet from mnemonic
-  let daemonConnection = new MoneroRpcConnection({uri: daemonRpcUri, user: daemonRpcUsername, pass: daemonRpcPassword});
-  let walletCorePath = useFS ? GenUtils.getUUID() : "";
-  console.log("Creating core wallet" + (proxyToWorker ? " in worker" : "") + (useFS ? " at path " + walletCorePath : ""));
-  let walletCore = await MoneroWalletCore.createWalletFromMnemonic(walletCorePath, "abctesting123", MoneroNetworkType.STAGENET, mnemonic, daemonConnection, restoreHeight, seedOffset, proxyToWorker, FS); 
-  console.log("Core wallet imported mnemonic: " + await walletCore.getMnemonic());
-  console.log("Core wallet imported address: " + await walletCore.getPrimaryAddress());
+  // create a wasm wallet from mnemonic
+  let daemonConnection = new MoneroRpcConnection({uri: daemonRpcUri, username: daemonRpcUsername, password: daemonRpcPassword});
+  let walletWasmPath = useFS ? GenUtils.getUUID() : "";
+  console.log("Creating WebAssembly wallet" + (proxyToWorker ? " in worker" : "") + (useFS ? " at path " + walletWasmPath : ""));
+  let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic(walletWasmPath, "abctesting123", MoneroNetworkType.STAGENET, mnemonic, daemonConnection, restoreHeight, seedOffset, proxyToWorker, FS); 
+  console.log("WebAssembly wallet imported mnemonic: " + await walletWasm.getMnemonic());
+  console.log("WebAssembly wallet imported address: " + await walletWasm.getPrimaryAddress());
   
-  // synchronize core wallet
-  console.log("Synchronizing core wallet...");
-  let result = await walletCore.sync(new WalletSyncPrinter());  // synchronize and print progress
+  // synchronize wasm wallet
+  console.log("Synchronizing wasm wallet...");
+  let result = await walletWasm.sync(new WalletSyncPrinter());  // synchronize and print progress
   console.log("Done synchronizing");
   console.log(result);
   
   // start background syncing with listener
-  await walletCore.addListener(new WalletSendReceivePrinter()); // listen for and print send/receive notifications
-  await walletCore.startSyncing();                              // synchronize in background
+  await walletWasm.addListener(new WalletSendReceivePrinter()); // listen for and print send/receive notifications
+  await walletWasm.startSyncing();                              // synchronize in background
   
   // print balance and number of transactions
-  console.log("Core wallet balance: " + await walletCore.getBalance());
-  console.log("Core wallet number of txs: " + (await walletCore.getTxs()).length);
+  console.log("WebAssembly wallet balance: " + await walletWasm.getBalance());
+  console.log("WebAssembly wallet number of txs: " + (await walletWasm.getTxs()).length);
   
   // send transaction to self, listener will notify when output is received
   console.log("Sending transaction to self");
-  let txSet = await walletCore.send(0, await walletCore.getPrimaryAddress(), new BigInteger("75000000000"));
+  let txSet = await walletWasm.sendTx(0, await walletWasm.getPrimaryAddress(), new BigInteger("75000000000"));
   console.log("Transaction sent successfully.  Should receive notification soon...");
   console.log("Transaction hash: " + txSet.getTxs()[0].getHash());
   
   console.log("EXIT MAIN");
-}
-
-/**
- * Worker thread.
- */
-async function runWorker() {
-  console.log("RUN INTERNAL WORKER");
-  console.log("EXIT INTERNAL WORKER");
 }
 
 /**

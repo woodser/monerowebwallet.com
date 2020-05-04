@@ -4,6 +4,7 @@
   "description": "Client-side Monero web wallet",
   "main": "src/index.js",
   "scripts": {
+    "build_browser_app": "webpack --config ./webpack.config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
