@@ -26,7 +26,6 @@ async function runMain() {
   let restoreHeight = 531333;
   let proxyToWorker = true;   // proxy wasm wallet and daemon to worker so main thread is not blocked (recommended)
   let useFS = true;           // optionally save wallets to an in-memory file system, otherwise use empty paths
-  let FS = useFS ? require('memfs') : undefined;  // use in-memory file system for demo
   
   // load wasm module on main thread
   console.log("Loading wasm module on main thread...");
@@ -42,7 +41,10 @@ async function runMain() {
   console.log("WASM utils to serialize to/from Monero\'s portable storage format working");
   
   // create a random keys-only wallet
-  let walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
+  let walletKeys = await MoneroWalletKeys.createWallet({
+    networkType: MoneroNetworkType.STAGENET,
+    language: "English"
+  });
   console.log("Keys-only wallet random mnemonic: " + await walletKeys.getMnemonic());
   
   // connect to monero-daemon-rpc on same thread as wasm wallet so requests from same client to daemon are synced
@@ -64,7 +66,12 @@ async function runMain() {
       console.log("Wallet with name '" + walletRpcFileName + "' not found, restoring from mnemonic");
       
       // create wallet
-      await walletRpc.createWalletFromMnemonic(walletRpcFileName, walletRpcFilePassword, mnemonic, restoreHeight);
+      await walletRpc.createWallet({
+        path: walletRpcFileName,
+        password: walletRpcFilePassword,
+        mnemonic: mnemonic,
+        restoreHeight: restoreHeight
+      });
       await walletRpc.sync();
     } else {
       throw e;
@@ -79,7 +86,16 @@ async function runMain() {
   let daemonConnection = new MoneroRpcConnection({uri: daemonRpcUri, username: daemonRpcUsername, password: daemonRpcPassword});
   let walletWasmPath = useFS ? GenUtils.getUUID() : "";
   console.log("Creating WebAssembly wallet" + (proxyToWorker ? " in worker" : "") + (useFS ? " at path " + walletWasmPath : ""));
-  let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic(walletWasmPath, "abctesting123", MoneroNetworkType.STAGENET, mnemonic, daemonConnection, restoreHeight, seedOffset, proxyToWorker, FS); 
+  let walletWasm = await MoneroWalletWasm.createWallet({
+    path: walletWasmPath,
+    password: "abctesting123",
+    networkType: MoneroNetworkType.STAGENET,
+    mnemonic: mnemonic,
+    server: daemonConnection,
+    restoreHeight: restoreHeight,
+    seedOffset: seedOffset,
+    proxyToWorker: proxyToWorker
+  }); 
   console.log("WebAssembly wallet imported mnemonic: " + await walletWasm.getMnemonic());
   console.log("WebAssembly wallet imported address: " + await walletWasm.getPrimaryAddress());
   
