@@ -9,7 +9,7 @@ This project is a sample web application using the [monero-javascript](https://g
 4. `git clone https://github.com/woodser/xmr-sample-app`
 5. `cd xmr-sample-app`
 6. `npm install`
-7. `./bin/start_dev_browser`
+7. `./bin/build_browser_app.sh`
 8. Access web app at http://localhost:9100
 
 <p align="center">
