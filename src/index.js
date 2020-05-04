@@ -30,7 +30,7 @@ async function runMain() {
   
   // load wasm module on main thread
   console.log("Loading wasm module on main thread...");
-  await MoneroUtils.loadKeysModule();
+  await LibraryUtils.loadKeysModule();
   console.log("done loading module");
   
   // demonstrate c++ utilities which use monero-project via webassembly
