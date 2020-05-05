@@ -12,6 +12,14 @@ This project is a sample web application using the [monero-javascript](https://g
 7. `./bin/build_browser_app.sh`
 8. Access web app at http://localhost:9100
 
+## Starting Designs (contributions welcome)
+
 <p align="center">
-	<img src="src/mockups/wallet/web_wallet.006.jpeg"/>
+	<img width="25%" src="src/mockups/wallet/web_wallet.001.jpeg"/><br><br>
+	<img width="25%" src="src/mockups/wallet/web_wallet.002.jpeg"/><br><br>
+	<img width="25%" src="src/mockups/wallet/web_wallet.006.jpeg"/><br><br>
+	<img width="25%" src="src/mockups/wallet/web_wallet.008.jpeg"/><br><br>
+	<img width="25%" src="src/mockups/wallet/web_wallet.009.jpeg"/><br><br>
+	<img width="25%" src="src/mockups/wallet/web_wallet.010.jpeg"/><br><br>
+	<img width="25%" src="src/mockups/wallet/web_wallet.011.jpeg"/><br><br>
 </p>
