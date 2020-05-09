@@ -1,6 +1,6 @@
 ## Description
 
-Placeholder for an open-source, client-side web wallet which performs transaction scanning client-side and without sharing the view key with an external server using the [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) library.
+Placeholder for an open-source, client-side web wallet which uses [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) to perform transaction scanning client-side and without sharing the view key with an external server using the library.
 
 ## How to Run in a Browser
 1. Download and install [Monero CLI](https://getmonero.org/downloads/)
