@@ -119,10 +119,7 @@ async function runMain() {
     amount: new BigInteger("75000000000"),
     relay: true
   });
-  console.log("Transaction sent successfully.  Should receive notification soon...");
-  console.log("Transaction hash: " + tx.getHash());
-  
-  console.log("EXIT MAIN");
+  console.log("Transaction " + tx.getHash() + " sent successfully.  Should receive notification soon...");
 }
 
 /**
