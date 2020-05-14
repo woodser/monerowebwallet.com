@@ -115,7 +115,7 @@ async function runMain() {
   console.log("Sending transaction to self");
   let tx = await walletWasm.createTx({
     accountIndex: 0, 
-    address: await walletWasm.getPrimaryAddress(),
+    address: await walletWasm.getAddress(1, 0),
     amount: new BigInteger("75000000000"),
     relay: true
   });
