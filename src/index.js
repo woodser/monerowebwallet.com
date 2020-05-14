@@ -10,8 +10,7 @@ require("monero-javascript");
  */
 runMain();
 async function runMain() {
-  console.log("RUN MAIN");
-  
+
   // config
   let daemonRpcUri = "http://localhost:38081";
   let daemonRpcUsername = "superuser";
