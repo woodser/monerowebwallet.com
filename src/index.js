@@ -113,7 +113,12 @@ async function runMain() {
   
   // send transaction to self, listener will notify when output is received
   console.log("Sending transaction to self");
-  let tx = await walletWasm.createTx(0, await walletWasm.getPrimaryAddress(), new BigInteger("75000000000"));
+  let tx = await walletWasm.createTx({
+    accountIndex: 0, 
+    address: await walletWasm.getPrimaryAddress(),
+    amount: new BigInteger("75000000000"),
+    relay: true
+  });
   console.log("Transaction sent successfully.  Should receive notification soon...");
   console.log("Transaction hash: " + tx.getHash());
   
