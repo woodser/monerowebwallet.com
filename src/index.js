@@ -10,6 +10,7 @@ const MoneroWalletListener = monerojs.MoneroWalletListener;
 const MoneroRpcConnection = monerojs.MoneroRpcConnection;
 const GenUtils = monerojs.GenUtils;
 const LibraryUtils = monerojs.LibraryUtils;
+const BigInteger = monerojs.BigInteger;
 
 /**
  * Main thread.
