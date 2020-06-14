@@ -10,7 +10,7 @@ const MoneroWalletListener = monerojs.MoneroWalletListener;
 const MoneroRpcConnection = monerojs.MoneroRpcConnection;
 const GenUtils = monerojs.GenUtils;
 const LibraryUtils = monerojs.LibraryUtils;
-const BigInteger = monerojs.BigInteger;
+const BigInteger = monerojs.BigInteger; // TODO: unable to parse monero-wallet-rpc response if not defined
 
 /**
  * Main thread.
