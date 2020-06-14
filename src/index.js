@@ -3,7 +3,13 @@
  * with a Monero daemon using RPC and a Monero wallet using RPC and WASM
  * bindings.
  */
-require("monero-javascript");
+const assert = require("assert");
+const monerojs = require("monero-javascript");
+const MoneroUtils = monerojs.MoneroUtils;
+const MoneroWalletListener = monerojs.MoneroWalletListener;
+const MoneroRpcConnection = monerojs.MoneroRpcConnection;
+const GenUtils = monerojs.GenUtils;
+const LibraryUtils = monerojs.LibraryUtils;
 
 /**
  * Main thread.
@@ -39,7 +45,7 @@ async function runMain() {
   console.log("WASM utils to serialize to/from Monero\'s portable storage format working");
   
   // create a random keys-only wallet
-  let walletKeys = await MoneroWalletKeys.createWallet({
+  let walletKeys = await monerojs.createWalletKeys({
     networkType: MoneroNetworkType.STAGENET,
     language: "English"
   });
@@ -47,11 +53,11 @@ async function runMain() {
   
   // connect to monero-daemon-rpc on same thread as wasm wallet so requests from same client to daemon are synced
   console.log("Connecting to monero-daemon-rpc");
-  let daemon = new MoneroDaemonRpc(daemonRpcUri, daemonRpcUsername, daemonRpcPassword);
+  let daemon = monerojs.connectToDaemonRpc(daemonRpcUri, daemonRpcUsername, daemonRpcPassword);
   console.log("Daemon height: " + await daemon.getHeight());
   
   // connect to monero-wallet-rpc
-  let walletRpc = new MoneroWalletRpc(walletRpcUri, walletRpcUsername, walletRpcPassword);
+  let walletRpc = monerojs.connectToWalletRpc(walletRpcUri, walletRpcUsername, walletRpcPassword);
   
   // open or create rpc wallet
   try {
@@ -84,7 +90,7 @@ async function runMain() {
   let daemonConnection = new MoneroRpcConnection(daemonRpcUri, daemonRpcUsername, daemonRpcPassword);
   let walletWasmPath = useFS ? GenUtils.getUUID() : "";
   console.log("Creating WebAssembly wallet" + (useFS ? " at path " + walletWasmPath : ""));
-  let walletWasm = await MoneroWalletWasm.createWallet({
+  let walletWasm = await monerojs.createWalletWasm({
     path: walletWasmPath,
     password: "abctesting123",
     networkType: MoneroNetworkType.STAGENET,
@@ -126,14 +132,16 @@ async function runMain() {
  */
 class WalletSyncPrinter extends MoneroWalletListener {
   
-  constructor(blockResolution) {
+  constructor(syncResolution) {
     super();
-    this.blockResolution = blockResolution ? blockResolution : 2500;
+    this.nextIncrement = 0;
+    this.syncResolution = syncResolution ? syncResolution : .05;
   }
   
   onSyncProgress(height, startHeight, endHeight, percentDone, message) {
-    if (percentDone === 1 || (startHeight - height) % this.blockResolution === 0) {
+    if (percentDone === 1 || percentDone >= this.nextIncrement) {
       console.log("onSyncProgress(" + height + ", " + startHeight + ", " + endHeight + ", " + percentDone + ", " + message + ")");
+      this.nextIncrement += this.syncResolution;
     }
   }
 }
