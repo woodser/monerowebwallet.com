@@ -47,7 +47,7 @@ async function runMain() {
   
   // create a random keys-only wallet
   let walletKeys = await monerojs.createWalletKeys({
-    networkType: MoneroNetworkType.STAGENET,
+    networkType: "stagenet",
     language: "English"
   });
   console.log("Keys-only wallet random mnemonic: " + await walletKeys.getMnemonic());
@@ -94,7 +94,7 @@ async function runMain() {
   let walletWasm = await monerojs.createWalletWasm({
     path: walletWasmPath,
     password: "abctesting123",
-    networkType: MoneroNetworkType.STAGENET,
+    networkType: "stagenet",
     mnemonic: mnemonic,
     server: daemonConnection,
     restoreHeight: restoreHeight,
