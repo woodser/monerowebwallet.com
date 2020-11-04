@@ -1,3 +1,4 @@
+use same build setup as monerostresstester.com
 cleanup: remove unecessary build scripts, don't copy src/*.js
 
 WEB APPS

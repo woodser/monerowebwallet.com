@@ -98,7 +98,8 @@ async function runMain() {
     mnemonic: mnemonic,
     server: daemonConnection,
     restoreHeight: restoreHeight,
-    seedOffset: seedOffset
+    seedOffset: seedOffset,
+    fs: require('memfs')
   }); 
   console.log("WebAssembly wallet imported mnemonic: " + await walletWasm.getMnemonic());
   console.log("WebAssembly wallet imported address: " + await walletWasm.getPrimaryAddress());
