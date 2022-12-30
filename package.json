@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/woodser/monerowebwallet.com#readme",
   "dependencies": {
-    "monero-javascript": "^0.4.6"
+    "monero-javascript": "^0.7.4"
   },
   "devDependencies": {
     "acorn": "^6.4.1",
@@ -36,7 +36,7 @@
     "eslint": "5.6.0",
     "memfs": "^3.1.2",
     "minimist": "^1.2.2",
-    "mocha": "^7.1.2",
+    "mocha": "^10.2.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-merge": "4.1.4",
